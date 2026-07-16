@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matter&CO — Cronograma ALS Brasil</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06070d;
+    --surface: rgba(255,255,255,0.03);
+    --surface-elevated: rgba(255,255,255,0.05);
+    --border: rgba(255,255,255,0.07);
+    --border-strong: rgba(255,255,255,0.12);
+    --accent: #8b5cf6;
+    --accent-glow: rgba(139,92,246,0.18);
+    --als-blue: #003DA5;
+    --als-blue-light: #4d8aff;
+    --als-glow: rgba(0,61,165,0.3);
+    --text-primary: #f0f0f6;
+    --text-secondary: #a0a0b8;
+    --text-muted: #4a4a62;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --pink: #ec4899;
+    --purple: #8b5cf6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    padding: 32px 24px 64px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -40%; left: -20%;
+    width: 70%; height: 70%;
+    background: radial-gradient(ellipse, rgba(0,61,165,0.07) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -30%; right: -10%;
+    width: 60%; height: 60%;
+    background: radial-gradient(ellipse, rgba(139,92,246,0.06) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--border-strong);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo-img { height: 24px; width: auto; object-fit: contain; }
+  .header-sep { width: 1px; height: 24px; background: var(--border-strong); }
+  .header-project { font-size: 13px; font-weight: 700; color: var(--als-blue-light); letter-spacing: 0.03em; }
+  .header-right { font-size: 11px; color: var(--text-muted); }
+  .header-right strong { color: var(--text-secondary); font-weight: 600; }
+
+  /* ── TITLE BAR ── */
+  .title-bar {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: baseline; justify-content: space-between;
+    background: rgba(255,255,255,0.015);
+  }
+  .title-bar h1 { font-size: 18px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
+  .title-bar .sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+
+  thead th {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 10px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-strong);
+    white-space: nowrap;
+  }
+
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:nth-child(odd) { background: rgba(255,255,255,0.015); }
+  tbody tr:hover { background: rgba(139,92,246,0.06); }
+  tbody tr.sep td { border-top: 2px solid rgba(255,255,255,0.08); }
+
+  /* row concluída highlight */
+  tbody tr.row-done { background: rgba(16,185,129,0.04) !important; }
+  tbody tr.row-done:hover { background: rgba(16,185,129,0.08) !important; }
+
+  td {
+    padding: 8px 10px;
+    vertical-align: middle;
+    white-space: nowrap;
+    color: var(--text-secondary);
+    font-size: 11px;
+  }
+  td.task-cell {
+    white-space: normal;
+    min-width: 200px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  td.task-cell.done-task {
+    color: var(--text-secondary);
+    text-decoration: line-through;
+    text-decoration-color: rgba(16,185,129,0.5);
+  }
+  .fase-cell {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 11px;
+    white-space: normal;
+    min-width: 140px;
+  }
+  td.date {
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+  }
+  td.pend-date {
+    color: var(--amber);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+  }
+  td.empty { color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 10px; }
+  td.resp { color: var(--text-secondary); font-size: 11px; }
+  td.resp.named { color: var(--als-blue-light); font-weight: 600; }
+  td.ord { text-align: center; color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 10px; }
+
+  /* badges */
+  .badge {
+    display: inline-block;
+    font-size: 9px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+  .b-conc   { background: rgba(16,185,129,0.12); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
+  .b-pend   { background: rgba(245,158,11,0.1);  color: var(--amber); border: 1px dashed rgba(245,158,11,0.3); }
+  .b-fase-conc  { background: rgba(16,185,129,0.1);  color: var(--green);  border: 1px solid rgba(16,185,129,0.2); }
+  .b-fase-andam { background: rgba(245,158,11,0.1);  color: var(--amber);  border: 1px solid rgba(245,158,11,0.2); }
+  .b-fase-plan  { background: rgba(139,92,246,0.08); color: var(--purple); border: 1px dashed rgba(139,92,246,0.3); }
+
+  /* ── FOOTER ── */
+  .footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 28px;
+    border-top: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+  .footer strong { color: var(--text-secondary); font-weight: 600; }
+  .pulse-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    display: inline-block; margin-right: 5px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  @media (max-width: 768px) {
+    body { padding: 12px 8px 40px; }
+    .wrap { overflow-x: auto; border-radius: 14px; }
+    table { min-width: 820px; }
+    .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .title-bar { flex-direction: column; gap: 4px; }
+  }
+
+  @media print {
+    body { background: #fff; color: #000; padding: 12px; }
+    .wrap { border: 1px solid #ddd; }
+    thead th { background: #f4f4f4 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <img
+        src="https://lirp.cdn-website.com/7fc54c2b/dms3rep/multi/opt/LOGO-COLORS-1920w.png"
+        onerror="this.onerror=null;this.outerHTML='<span style=\'font-size:15px;font-weight:800;color:#8b5cf6;letter-spacing:-0.04em;\'>Matter&amp;CO</span>'"
+        alt="Matter&CO"
+        class="logo-img"
+      >
+      <div class="header-sep"></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:22px;height:22px;border-radius:50%;background:#003DA5;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(0,61,165,0.4);">
+          <svg viewBox="0 0 100 100" width="14" height="14" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="50,10 85,74 15,74" fill="white"/>
+            <rect x="20" y="66" width="60" height="14" rx="7" fill="#003DA5"/>
+            <text x="50" y="77" text-anchor="middle" fill="white" font-size="10" font-weight="800" font-family="Arial,sans-serif" letter-spacing="2">ALS</text>
+          </svg>
+        </div>
+        <span class="header-project">Projeto ALS Brasil</span>
+      </div>
+    </div>
+    <div class="header-right">Atualizado em <strong>16 de julho de 2026</strong></div>
+  </div>
+
+  <!-- TITLE -->
+  <div class="title-bar">
+    <h1>Projeto ALS — Cronograma</h1>
+    <span class="sub">5 fases · 20 tarefas · Deadline 06/ago/2026</span>
+  </div>
+
+  <!-- TABLE -->
+  <table>
+    <thead>
+      <tr>
+        <th>Fase</th>
+        <th class="ord">Ord.</th>
+        <th>Status fase</th>
+        <th>Prazo fase</th>
+        <th>Tarefa</th>
+        <th>Responsável</th>
+        <th>Data prevista</th>
+        <th>Status tarefa</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <!-- KICK-OFF (linhas 1–4 → Cristiano) -->
+      <tr>
+        <td class="fase-cell">Kick-off</td>
+        <td class="ord">1</td>
+        <td><span class="badge b-fase-conc">concluída</span></td>
+        <td class="date">28/05/2026</td>
+        <td class="task-cell">Alinhamento inicial entre equipes</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="date">21/05/2026</td>
+        <td><span class="badge b-conc">concluída</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Kick-off</td>
+        <td class="ord">1</td>
+        <td><span class="badge b-fase-conc">concluída</span></td>
+        <td class="date">28/05/2026</td>
+        <td class="task-cell">Delimitação do fluxo de valor</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="date">28/05/2026</td>
+        <td><span class="badge b-conc">concluída</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Kick-off</td>
+        <td class="ord">1</td>
+        <td><span class="badge b-fase-conc">concluída</span></td>
+        <td class="date">28/05/2026</td>
+        <td class="task-cell">Definição das famílias de serviço</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="date">21/05/2026</td>
+        <td><span class="badge b-conc">concluída</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Kick-off</td>
+        <td class="ord">1</td>
+        <td><span class="badge b-fase-conc">concluída</span></td>
+        <td class="date">28/05/2026</td>
+        <td class="task-cell">Planejamento da coleta de dados</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="date">28/05/2026</td>
+        <td><span class="badge b-conc">concluída</span></td>
+      </tr>
+
+      <!-- SMART SCAN (linhas 5–8 → Taynara) -->
+      <tr>
+        <td class="fase-cell">Smart Scan (Diagnóstico)</td>
+        <td class="ord">2</td>
+        <td><span class="badge b-fase-conc">concluída</span></td>
+        <td class="date">28/05/2026</td>
+        <td class="task-cell">Observação direta da operação (Gemba Walk)</td>
+        <td class="resp named" style="color:#ec4899;">Taynara de Paula</td>
+        <td class="empty">—</td>
+        <td><span class="badge b-conc">concluída</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Smart Scan (Diagnóstico)</td>
+        <td class="ord">2</td>
+        <td><span class="badge b-fase-conc">concluída</span></td>
+        <td class="date">28/05/2026</td>
+        <td class="task-cell">Cronometragem de tempos de ciclo</td>
+        <td class="resp named" style="color:#ec4899;">Taynara de Paula</td>
+        <td class="empty">—</td>
+        <td><span class="badge b-conc">concluída</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Smart Scan (Diagnóstico)</td>
+        <td class="ord">2</td>
+        <td><span class="badge b-fase-conc">concluída</span></td>
+        <td class="date">28/05/2026</td>
+        <td class="task-cell">Levantamento de WIP e backlog</td>
+        <td class="resp named" style="color:#ec4899;">Taynara de Paula</td>
+        <td class="empty">—</td>
+        <td><span class="badge b-conc">concluída</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Smart Scan (Diagnóstico)</td>
+        <td class="ord">2</td>
+        <td><span class="badge b-fase-conc">concluída</span></td>
+        <td class="date">28/05/2026</td>
+        <td class="task-cell">Mapeamento de filas e tempos de troca</td>
+        <td class="resp named" style="color:#ec4899;">Taynara de Paula</td>
+        <td class="empty">—</td>
+        <td><span class="badge b-conc">concluída</span></td>
+      </tr>
+
+      <!-- linha 9: 1ª Visita → Taynara → concluída -->
+      <tr class="sep row-done">
+        <td class="fase-cell">Mapeamento de Processos</td>
+        <td class="ord">3</td>
+        <td><span class="badge b-fase-andam">em andamento</span></td>
+        <td class="pend-date">24/07/2026</td>
+        <td class="task-cell done-task">1ª Visita de Mapeamento</td>
+        <td class="resp named" style="color:#ec4899;">Taynara de Paula</td>
+        <td class="date">23/06/2026</td>
+        <td><span class="badge b-conc">concluída</span></td>
+      </tr>
+
+      <!-- MAPEAMENTO restante → Cristiano -->
+      <tr>
+        <td class="fase-cell">Mapeamento de Processos</td>
+        <td class="ord">3</td>
+        <td><span class="badge b-fase-andam">em andamento</span></td>
+        <td class="pend-date">24/07/2026</td>
+        <td class="task-cell">Construção do Current State Map</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="pend-date">20/07/2026</td>
+        <td><span class="badge b-pend">pendente</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Mapeamento de Processos</td>
+        <td class="ord">3</td>
+        <td><span class="badge b-fase-andam">em andamento</span></td>
+        <td class="pend-date">24/07/2026</td>
+        <td class="task-cell">Identificação de gargalos e esperas</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="pend-date">22/07/2026</td>
+        <td><span class="badge b-pend">pendente</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Mapeamento de Processos</td>
+        <td class="ord">3</td>
+        <td><span class="badge b-fase-andam">em andamento</span></td>
+        <td class="pend-date">24/07/2026</td>
+        <td class="task-cell">Mapeamento de retrabalhos e restrições</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="pend-date">24/07/2026</td>
+        <td><span class="badge b-pend">pendente</span></td>
+      </tr>
+
+      <!-- ANÁLISE DE INDICADORES → Cristiano -->
+      <tr class="sep">
+        <td class="fase-cell">Análise de Indicadores</td>
+        <td class="ord">4</td>
+        <td><span class="badge b-fase-plan">planejada</span></td>
+        <td class="pend-date">31/07/2026</td>
+        <td class="task-cell">Cálculo dos indicadores</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="pend-date">27/07/2026</td>
+        <td><span class="badge b-pend">pendente</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Análise de Indicadores</td>
+        <td class="ord">4</td>
+        <td><span class="badge b-fase-plan">planejada</span></td>
+        <td class="pend-date">31/07/2026</td>
+        <td class="task-cell">Análise estruturada dos desperdícios</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="pend-date">29/07/2026</td>
+        <td><span class="badge b-pend">pendente</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Análise de Indicadores</td>
+        <td class="ord">4</td>
+        <td><span class="badge b-fase-plan">planejada</span></td>
+        <td class="pend-date">31/07/2026</td>
+        <td class="task-cell">Workshop de causas raiz</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="pend-date">30/07/2026</td>
+        <td><span class="badge b-pend">pendente</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Análise de Indicadores</td>
+        <td class="ord">4</td>
+        <td><span class="badge b-fase-plan">planejada</span></td>
+        <td class="pend-date">31/07/2026</td>
+        <td class="task-cell">Desenho do fluxo futuro (Future State Map)</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="pend-date">31/07/2026</td>
+        <td><span class="badge b-pend">pendente</span></td>
+      </tr>
+
+      <!-- PLANO DE AÇÃO → Cristiano -->
+      <tr class="sep">
+        <td class="fase-cell">Plano de Ação</td>
+        <td class="ord">5</td>
+        <td><span class="badge b-fase-plan">planejada</span></td>
+        <td class="pend-date">06/08/2026</td>
+        <td class="task-cell">Consolidação do plano de ação</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="pend-date">03/08/2026</td>
+        <td><span class="badge b-pend">pendente</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Plano de Ação</td>
+        <td class="ord">5</td>
+        <td><span class="badge b-fase-plan">planejada</span></td>
+        <td class="pend-date">06/08/2026</td>
+        <td class="task-cell">Estruturação do dashboard de acompanhamento</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="pend-date">04/08/2026</td>
+        <td><span class="badge b-pend">pendente</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Plano de Ação</td>
+        <td class="ord">5</td>
+        <td><span class="badge b-fase-plan">planejada</span></td>
+        <td class="pend-date">06/08/2026</td>
+        <td class="task-cell">Relatório final consolidado</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="pend-date">05/08/2026</td>
+        <td><span class="badge b-pend">pendente</span></td>
+      </tr>
+      <tr>
+        <td class="fase-cell">Plano de Ação</td>
+        <td class="ord">5</td>
+        <td><span class="badge b-fase-plan">planejada</span></td>
+        <td class="pend-date">06/08/2026</td>
+        <td class="task-cell">Apresentação executiva</td>
+        <td class="resp named">Cristiano de Magalhães</td>
+        <td class="pend-date">06/08/2026</td>
+        <td><span class="badge b-pend">pendente</span></td>
+      </tr>
+
+    </tbody>
+  </table>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span><span class="pulse-dot"></span>Hoje: <strong>16/jul/2026</strong></span>
+    <span>Início: <strong>21/mai/2026</strong> → Deadline: <strong>06/ago/2026</strong></span>
+    <span>Matter&amp;CO © 2026</span>
+  </div>
+
+</div>
+
+</body>
+</html>
